@@ -1,0 +1,76 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mis Tareas</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/categories">Categorías</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  
+  <ion-toolbar *ngIf="isFilterEnabled">
+    <ion-item lines="none">
+      <ion-label>Filtrar:</ion-label>
+      <ion-select [value]="filterCategoryId" (ionChange)="onFilterChange($event)">
+        <ion-select-option value="all">Todas</ion-select-option>
+        <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
+          {{ cat.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-segment [value]="viewMode" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="pending">
+        <ion-label>Pendientes</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="completed">
+        <ion-label>Completadas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="deleted">
+        <ion-label>Papelera</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <ion-card *ngIf="viewMode !== 'deleted'">
+    <ion-card-content>
+      <ion-item>
+        <ion-input [(ngModel)]="newTaskTitle" placeholder="Nueva tarea..."></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-select [(ngModel)]="selectedCategoryId" placeholder="Seleccionar Categoría">
+          <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
+            {{ cat.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-button expand="block" (click)="addTask()" [disabled]="!newTaskTitle">Agregar Tarea</ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-list>
+    <ion-item *ngFor="let task of filteredTasks; trackBy: trackById">
+      
+      <ion-checkbox *ngIf="viewMode !== 'deleted'" slot="start" [checked]="task.completed" (ionChange)="toggleTask(task.id)"></ion-checkbox>
+      
+      <ion-label [class.completed]="task.completed">{{ task.title }}</ion-label>
+      
+      <ion-button fill="clear" color="danger" slot="end" *ngIf="viewMode !== 'deleted'" (click)="deleteTask(task.id)">
+        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <ion-button fill="clear" color="success" slot="end" *ngIf="viewMode === 'deleted'" (click)="restoreTask(task.id)">
+        <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      
+      <ion-button fill="clear" color="dark" slot="end" *ngIf="viewMode === 'deleted'" (click)="hardDeleteTask(task.id)">
+        <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+
+    </ion-item>
+  </ion-list>
+
+</ion-content>
